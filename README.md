@@ -1,7 +1,7 @@
 Parallel Calculation of Stock Covariance/Variance
 ================
 
-This is my Math 480 Spring Sage Programming Final Project
+My Math 480 Spring Sage Programming Final Project
 Project Components:
 
 
