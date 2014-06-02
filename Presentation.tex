@@ -1,0 +1,131 @@
+\documentclass{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usetheme{Warsaw}
+
+\title{Computing Covariance and Variance of Stock Returns in Parallel}
+\author{Matt Butts}\institute{University of Washington}
+
+\begin{document}
+
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+Common approaches to calculating statistical moments are slow because of the computational complexity that comes with huge data sets. This is a problem in finance when calculating stock relationships because calculating these moments require iterating over the data sets multiple times.
+\end{frame}
+
+\begin{frame}
+The first moment is the mean of the list.
+$$M_{1, X} = \bar{x} = \sum\limits_{i=1}^n \frac{x_i}{n}$$
+
+$$M_{1, Y} = \bar{y} = \sum\limits_{i=1}^n \frac{y_i}{n}$$
+\end{frame}
+
+\begin{frame}
+The second moment is the variance of the list.
+$$M_{2, X} = \sum\limits_{i=1}^n \frac{(x_i - \bar{x})^2}{n}$$
+Standard Deviation (units of the data)
+$$StdDev = \sqrt{\sum\limits_{i=1}^n \frac{(x_i - \bar{x})^2}{n}}$$
+\end{frame}
+
+\begin{frame}
+The second co-moment is the covariance of the two lists.
+$$M_{2, X, Y} = COV(X,Y) = \sum\limits_{i=1}^n \frac{(x_i - \bar{x})(y_i - \bar{y})}{n}$$
+The correlation (standardized units)
+$$Corr = \frac{\sum\limits_{i=1}^n \frac{(x_i - \bar{x})(y_i - \bar{y})}{n}}{StdDevX * StdDevY}$$
+\end{frame}
+
+\begin{frame}
+\textbullet My program will compute correlation and standard deviation.
+
+\textbullet Parallel processing is used to speed up the expensive computation of covariance and variance. The lists can be partitioned into blocks and be calculated in separate processes. 
+
+\textbullet Then the results can be aggregated and combined using a special equation (in my paper).
+\end{frame}
+
+\begin{frame}
+Simple Breakdown of Algorithm:
+
+1. Input/Chunk Processing
+
+2. Chunk Calculating
+
+3. Chunk Assembly
+
+4. Standardized Output
+\end{frame}
+
+
+\begin{frame}
+File Input/Chunk Processing:
+
+\textbullet My program reads a CSV file with column data of stock returns for two stocks
+
+\textbullet User can specify to save to a .txt file and/or print results
+
+\textbullet Four list divisions are performed to partition each return list
+\end{frame}
+
+
+\begin{frame}
+Chunk Calculating:
+
+\textbullet Bulk of computational complexity occurs here
+
+\textbullet Parallel Decorator to run list of partitions
+
+\textbullet Importance of Two-Pass Algorithm vs. One-Pass Algorithm, maintains mean
+
+\vspace{1cm}
+Chunk Assembly:
+
+\textbullet Pairwise assembly algorithm that gets called recursively to assemble the four partitions of the list.
+
+\end{frame}
+
+\begin{frame}
+Standardized Output:
+
+\textbullet My program saves/prints the output as a dictionary of the moment/co-moment data
+
+\textbullet It calculates correlation and standard deviation because these are considered standardized measures
+
+\end{frame}
+
+\begin{frame}
+I ran the same data set on my parallel program and a program that runs a similar algorithm, not using parallel processes.
+
+Data Points are per set and speed is calculated per loop using "timeit"
+\begin{table}[h]
+\begin{tabular}{llll}
+Data Points& My Algorithm & Common Approach & Results \\
+1,000 & 60.9 ms& 19.3 ms & Slower \\
+5,000 & 89.9 ms& 88.6 ms & Almost equal \\
+50,000 & 232 ms& 897 ms & 3.86x faster \\
+100,000 & 393 ms& 1.76 s & 4.48x faster \\
+500,000 & 1.72 s& 9.02 s & 5.24x faster \\
+1,000,000 & 3.37 s& 17.8 s & 5.28x faster
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+If I had more time and resources to make this more efficient:
+
+\textbullet Implement cython in the computationally heavy functions
+
+\textbullet Optimize the way processes are ran in parallel
+
+\textbullet Optimize the number of list divisions based on original list size
+\end{frame}
+
+
+\begin{frame}
+Questions?
+\end{frame}
+
+\end{document}
+%sagemathcloud={"zoom_width":90}
